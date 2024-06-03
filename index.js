@@ -19,7 +19,26 @@ const pathToFile = path.join(process.cwd(), fileName);
 
 try {
 	const data = fs.readFileSync(pathToFile, "utf8");
-	console.log(data.split("\n").length, fileName);
+	switch (flag) {
+		case "-c":
+			console.log(new Blob([data]).size, fileName);
+			break;
+		case "-l":
+			console.log(data.split("\n").length, fileName);
+			break;
+		case "-w":
+			let count = 0;
+			data
+				.split("\n")
+				.forEach((line) => (count += line.trim().split(/\s+/).length));
+			console.log(count, fileName);
+			break;
+
+		default:
+			break;
+	}
+
+	// console.log(data.split("\n").length, fileName);
 } catch (err) {
 	console.error(err);
 }
