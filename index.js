@@ -3,17 +3,23 @@
 import path from "path";
 import fs from "node:fs";
 import readline from "node:readline";
+import os from "os";
 
-const flag = process.argv[2];
+let flag = process.argv[2];
 if (!flag) {
 	console.log("Please provide a flag like -c, -w, -l");
 	process.exit(1);
 }
 
-const fileName = process.argv[3];
+let fileName = process.argv[3];
 if (!fileName) {
-	console.log("Please provide a file name");
-	process.exit(1);
+	if (flag.includes(".")) {
+		fileName = flag;
+		flag = "";
+	} else {
+		console.log("Please provide a file name");
+		process.exit(1);
+	}
 }
 
 const pathToFile = path.join(process.cwd(), fileName);
@@ -24,6 +30,17 @@ const rl = readline.createInterface({
 	output: process.stdout,
 	terminal: false,
 });
+
+// Function to get the system locale
+function getSystemLocale() {
+	return Intl.DateTimeFormat().resolvedOptions().locale || os.locale();
+}
+const getCharCountInLocale = (inputString) => {
+	let userLocale = getSystemLocale();
+	const collator = new Intl.Collator(userLocale, { sensitivity: "base" });
+	const normalizedString = inputString.normalize();
+	return normalizedString.length;
+};
 
 const getBytes = (str) => {
 	return new Blob([str]).size;
@@ -56,6 +73,9 @@ try {
 
 		case "-w":
 			console.log("\t", getWordsCount(data), fileName);
+			break;
+		case "-m":
+			console.log("\t", getCharCountInLocale(data), fileName);
 			break;
 
 		default:
